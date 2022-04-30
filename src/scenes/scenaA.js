@@ -68,7 +68,7 @@ export default class MyGame extends Phaser.Scene
         //  Some stars to collect, 12 in total, evenly spaced 70 pixels apart along the x axis
         stars = this.physics.add.group({
             key: 'star',
-            repeat: 11,
+            repeat: 1,
             setXY: { x: 12, y: 0, stepX: 70 }
         });
 
@@ -178,6 +178,6 @@ function hitBomb (player, bomb)
 
     gameOver = true;
 
-    this.scene.start('Portada');
+    this.scene.start('GameOver');
 }
 

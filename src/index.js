@@ -1,5 +1,6 @@
 import Portada from './scenes/portada';
 import ScenaA from './scenes/scenaA';
+import GameOver from "./scenes/gameOver";
 
 
 
@@ -7,8 +8,8 @@ const config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    backgroundColor: '#add8e6',
-    scene: [Portada, ScenaA],
+    backgroundColor:'#5e3f6b',
+    scene: [Portada, ScenaA,GameOver],
     physics: {
         default: 'arcade',
         arcade: {
