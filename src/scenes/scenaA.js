@@ -11,6 +11,7 @@ export default class MyGame extends Phaser.Scene
     preload ()
     {
         this.load.image('sky', './src/assets/sky.png');
+        this.load.image('cor', './src/assets/cor.png');
         this.load.image('ground', './src/assets/platform.png');
         this.load.image('star', './src/assets/star.png');
         this.load.image('bomb', './src/assets/bomb.png');
@@ -21,6 +22,8 @@ export default class MyGame extends Phaser.Scene
     {
         //  A simple background for our game
         this.add.image(400, 300, 'sky');
+
+        this.add.image(600, 35, 'cor');
 
         //  The platforms group contains the ground and the 2 ledges we can jump on
         platforms = this.physics.add.staticGroup();
