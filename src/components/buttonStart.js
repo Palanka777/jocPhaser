@@ -8,7 +8,7 @@ export class PlayButton extends Button {
 
     doClick() {
         //this.relatedScene.breakoutSample.play();
-        this.relatedScene.scene.start('MyGame');
+        this.relatedScene.scene.start('ScenaB');
     }
 
 }

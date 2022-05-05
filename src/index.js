@@ -1,5 +1,6 @@
 import Portada from './scenes/portada';
-import ScenaA from './scenes/scenaA';
+import MyGame from './scenes/scenaA';
+import ScenaB from './scenes/scenaB';
 import GameOver from "./scenes/gameOver";
 
 
@@ -9,7 +10,7 @@ const config = {
     width: 800,
     height: 600,
     backgroundColor:'#5e3f6b',
-    scene: [Portada, ScenaA,GameOver],
+    scene: [Portada,ScenaB, MyGame,GameOver],
     physics: {
         default: 'arcade',
         arcade: {
@@ -22,4 +23,4 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH
     }
 }
-var game = new Phaser.Game(config);
+new Phaser.Game(config);
