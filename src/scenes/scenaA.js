@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import {config} from "../index";
+import ScenaB from "./scenaB";
 
 export default class MyGame extends Phaser.Scene
 {
