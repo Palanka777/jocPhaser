@@ -3,7 +3,6 @@ import gameover from '../assets/gameover.png';
 import backGround from '../assets/background.png';
 import { PlayButton } from '../components/buttonStart';
 
-
 export default class GameOver extends Phaser.Scene
 {
     constructor ()
@@ -16,15 +15,17 @@ export default class GameOver extends Phaser.Scene
     {
         this.load.image('back', backGround);
         this.load.image('over', gameover);
-        this.load.spritesheet('playbutton', './src/images/playbutton.png', { frameWidth: 190, frameHeight: 49 });
+        this.load.spritesheet('playbutton', './src/images/playbutton.png', { frameWidth: 200, frameHeight: 49 });
 
     }
 
-    create ()
+    create (data)
     {
-        this.add.image(300,300,'back')
+        this.add.image(800,300,'back')
         this.playButton.create();
-        const over = this.add.image(400, 50, 'over');
+        const over = this.add.image(830, 50, 'over');
+
+        this.scoreText = this.add.text(760, 350, 'Score: '+ data.score, { fontSize: '32px', fill: '#fff' });
 
         this.tweens.add({
             targets: over,

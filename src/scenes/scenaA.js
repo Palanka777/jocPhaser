@@ -1,51 +1,106 @@
 import Phaser from 'phaser';
 import {config} from "../index";
-import ScenaB from "./scenaB";
 
-export default class MyGame extends Phaser.Scene
+
+let player;
+let stars;
+let platforms;
+let cursors;
+let gameOver = false;
+let scoreText;
+let map;
+let aigua
+let tileset;
+let vida1;
+let vida2;
+let vida3;
+let mort;
+let recullir;
+let musica;
+let monstruo;
+let porta;
+let countLife;
+let score;
+
+export default class ScenaA extends Phaser.Scene
 {
     constructor ()
     {
-        super('MyGame');
+        super('ScenaA');
     }
 
     preload ()
     {
-        this.load.image('sky', './src/assets/sky.png');
+
+        //carrego tiles
+        //this.load.image('star', './src/assets/maria.png');
         this.load.image('cor', './src/assets/cor.png');
-        this.load.image('ground', './src/assets/platform.png');
         this.load.image('star', './src/assets/star.png');
-        this.load.image('bomb', './src/assets/bomb.png');
+        this.load.image('mons', './src/assets/monstruo.png');
+        this.load.image('porta', './src/assets/porta.png');
+        this.load.image('tiles2', './src/images/kenney_16x16.png');
         this.load.spritesheet('dude', './src/assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+
+        // carrego mapa
+        this.load.tilemapTiledJSON('map2', './src/components/map2.json');
+
+        //cargo sons
+        this.load.audio('recull','./src/sons/coin.wav');
+        this.load.audio('musica','./src/sons/scenaB.wav');
+        this.load.audio('mort','./src/sons/mort.mp3');
     }
 
-    create ()
+    create (data)
     {
-        //  A simple background for our game
-        this.add.image(400, 300, 'sky');
+        if(countLife==null)countLife=data.countLife
+        score=data.score
 
-        this.add.image(600, 35, 'cor');
+        recullir=this.sound.add('recull')
+        musica=this.sound.add('musica')
+        mort=this.sound.add('mort')
+        musica.loop=true;
+        musica.play();
 
-        //  The platforms group contains the ground and the 2 ledges we can jump on
-        platforms = this.physics.add.staticGroup();
+        // Carrego mapa
 
-        //  Here we create the ground.
-        //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-        platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+        map = this.make.tilemap({ key: 'map2'});
+        tileset = map.addTilesetImage('map2', 'tiles2');
 
-        //  Now let's create some ledges
-        platforms.create(600, 400, 'ground');
-        platforms.create(50, 250, 'ground');
-        platforms.create(750, 220, 'ground');
+        // Carrego les capes del mapa
+        map.createLayer('background', tileset)
+        aigua = map.createLayer('Aigua', tileset)
+        platforms = map.createLayer('ground', tileset);
+        map.createLayer('background2', tileset)
 
-        // The player and its settings
-        player = this.physics.add.sprite(100, 450, 'dude');
-
-        //  Player physics properties. Give the little guy a slight bounce.
+        // faig que el terra i l'aigua siguin colisionables
+        platforms.setCollisionByExclusion(-1, true);
+        aigua.setCollisionByExclusion(-1, true);
+        //Jugador
+        player = this.physics.add.sprite(50, 200, 'dude');
         player.setBounce(0.2);
         player.setCollideWorldBounds(true);
 
-        //  Our player animations, turning, walking left and walking right.
+        //this.cameras.main.startFollow(player)
+        //this.cameras.main.setZoom(2)
+        monstruo = this.physics.add.image(800,300,'mons')
+        porta = this.physics.add.image(1750,300,'porta')
+        //Estrelles a recollir
+
+        stars = this.physics.add.group({
+            key: 'star',
+            repeat: 12,
+            setXY: { x: 100, y: 0, stepX: 200 }
+        });
+
+        stars.children.iterate(function (child) {
+
+            //  Give each star a slightly different bounce
+            child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.4));
+
+        });
+
+
+        //moviment del jugador
         this.anims.create({
             key: 'left',
             frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
@@ -69,34 +124,47 @@ export default class MyGame extends Phaser.Scene
         //  Input Events
         cursors = this.input.keyboard.createCursorKeys();
 
-        //  Some stars to collect, 12 in total, evenly spaced 70 pixels apart along the x axis
-        stars = this.physics.add.group({
-            key: 'star',
-            repeat: 1,
-            setXY: { x: 12, y: 0, stepX: 70 }
-        });
-
-        stars.children.iterate(function (child) {
-
-            //  Give each star a slightly different bounce
-            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-
-        });
-
-        bombs = this.physics.add.group();
-
         //  The score
-        scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+        scoreText = this.add.text(16, 16, 'Score: '+ score, { fontSize: '32px', fill: '#000' });
 
-        //  Collide the player and the stars with the platforms
+        //poso el cor de les vides
+
+        /*        vida1=this.add.image(1300, 35, 'cor');
+                vida2=this.add.image(1345, 35, 'cor');
+                vida3=this.add.image(1390, 35, 'cor');*/
+        switch (countLife) {
+            case 0:
+                vida1=this.add.image(35, 80, 'cor');
+                vida2=this.add.image(80, 80, 'cor');
+                vida3=this.add.image(125, 80, 'cor');
+                break;
+
+            case 1:
+                vida1=this.add.image(35, 80, 'cor');
+                vida2=this.add.image(80, 80, 'cor');
+                break;
+            case 2:
+                vida1=this.add.image(35, 80, 'cor');
+                break;
+
+        }
+
+        //aigua = this.physics.add.group();
+
+        // especifico els elements que colisionen entre ells
         this.physics.add.collider(player, platforms);
         this.physics.add.collider(stars, platforms);
-        this.physics.add.collider(bombs, platforms);
+        this.physics.add.collider(monstruo, platforms);
+        this.physics.add.collider(porta, platforms);
 
-        //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
+        this.physics.add.collider(player, aigua, caureAigua, null, this);
         this.physics.add.overlap(player, stars, collectStar, null, this);
+        this.physics.add.collider(player, monstruo, tocarMonstre, null, this);
+        this.physics.add.collider(player, porta, passaNivell, null, this);
 
-        this.physics.add.collider(player, bombs, hitBomb, null, this);
+
+
+
     }
 
     update ()
@@ -125,63 +193,88 @@ export default class MyGame extends Phaser.Scene
             player.anims.play('turn');
         }
 
-        if (cursors.up.isDown && player.body.touching.down)
+        if (cursors.up.isDown && player.body.onFloor())
         {
             player.setVelocityY(-330);
         }
+
     }
 
 
 }
-var player;
-var stars;
-var bombs;
-var platforms;
-var cursors;
-var score = 0;
-var gameOver = false;
-var scoreText;
-
-//var game = new Phaser.Game(config);
 
 function collectStar (player, star)
 {
-    star.disableBody(true, true);
 
+    star.disableBody(true, true);
+    recullir.play();
     //  Add and update the score
     score += 10;
     scoreText.setText('Score: ' + score);
 
-    if (stars.countActive(true) === 0)
-    {
-        //  A new batch of stars to collect
-        stars.children.iterate(function (child) {
-
-            child.enableBody(true, child.x, 0, true, true);
-
-        });
-
-        var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-
-        var bomb = bombs.create(x, 16, 'bomb');
-        bomb.setBounce(1);
-        bomb.setCollideWorldBounds(true);
-        bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
-        bomb.allowGravity = false;
-
-    }
 }
 
-function hitBomb (player, bomb)
+function caureAigua (player)
 {
     this.physics.pause();
+    musica.stop();
+    mort.play()
+    countLife++;
+    player.setTint(0xff0000)
+    player.anims.play('turn')
 
-    player.setTint(0xff0000);
 
-    player.anims.play('turn');
-
-    gameOver = true;
-
-    this.scene.start('GameOver');
+    setTimeout(() => {
+        switch (countLife) {
+            case 1:
+                vida1.visible = false;
+                this.scene.start('ScenaA',{score:score});
+                break;
+            case 2:
+                vida2.visible = false;
+                this.scene.start('ScenaA',{score:score});
+                break;
+            case 3:
+                //vida3.visible = false;
+                countLife=0
+                this.scene.start('GameOver',{score:score});
+                break;
+            default:
+                this.scene.start('GameOver',{score:score});
+        }
+    }, 1000)
 }
+
+function tocarMonstre (player)
+{
+    this.physics.pause();
+    musica.stop();
+    mort.play()
+    countLife++;
+    player.setTint(0xff0000);
+    player.anims.play('turn');
+    setTimeout(() => {
+        switch (countLife) {
+            case 1:
+                vida1.visible = false;
+                this.scene.start('ScenaA',{score:score});
+                break;
+            case 2:
+                vida2.visible = false;
+                this.scene.start('ScenaA',{score:score});
+                break;
+            case 3:
+                //vida3.visible = false;
+                countLife=0
+                this.scene.start('GameOver',{score:score});
+                break;
+        }
+    }, 1000)
+
+}
+function passaNivell(){
+    console.log(score)
+    this.scene.start('GameOver',{score:score})
+}
+
 

@@ -1,26 +1,25 @@
 import Phaser from 'phaser';
 import {config} from "../index";
-import Portada from "../scenes/portada"
-//import game from "../index"
 
-var player;
-var stars;
-var platforms;
-var cursors;
-var score = 0;
-var gameOver = false;
-var scoreText;
-var map;
-var aigua
-var tileset;
-var vida1;
-var vida2;
-var vida3;
-var countLife=0;
-var recullir;
-var musica;
-var monstruo;
-
+let player;
+let stars;
+let platforms;
+let cursors;
+let gameOver = false;
+let scoreText;
+let map;
+let aigua
+let tileset;
+let vida1;
+let vida2;
+let vida3;
+let recullir;
+let musica;
+let monstruo;
+let porta;
+let mort;
+let countLife;
+let score;
 
 export default class ScenaB extends Phaser.Scene
 {
@@ -33,10 +32,11 @@ export default class ScenaB extends Phaser.Scene
     {
 
         //carrego tiles
-        //this.load.image('star', './src/assets/maria.png');
+
         this.load.image('cor', './src/assets/cor.png');
         this.load.image('star', './src/assets/star.png');
         this.load.image('mons', './src/assets/monstruo.png');
+        this.load.image('porta', './src/assets/porta.png');
         this.load.image('tiles', './src/images/kenney_16x16.png');
         this.load.spritesheet('dude', './src/assets/dude.png', { frameWidth: 32, frameHeight: 48 });
 
@@ -46,14 +46,24 @@ export default class ScenaB extends Phaser.Scene
         //cargo sons
         this.load.audio('recull','./src/sons/coin.wav');
         this.load.audio('musica','./src/sons/scenaB.wav');
+        this.load.audio('mort','./src/sons/mort.mp3');
     }
 
-    create ()
+    create (data)
     {
+        if (score==null)score=data.score
+        if(data.score==1){
+            score=0;
+            data.score=0
+            countLife=0;
+        }
+
+        this.cameras.main.setBounds(0,0, 1790,497)
 
         //carrego la musica
         recullir=this.sound.add('recull')
         musica=this.sound.add('musica')
+        mort=this.sound.add('mort')
         musica.loop=true;
         musica.play();
 
@@ -76,9 +86,10 @@ export default class ScenaB extends Phaser.Scene
         player.setBounce(0.2);
         player.setCollideWorldBounds(true);
 
-/*        this.cameras.main.setBounds(0,0, 1780,0)
-        this.cameras.main.startFollow(player)*/
+        this.cameras.main.startFollow(player)
+        this.cameras.main.setZoom(1)
         monstruo = this.physics.add.image(800,300,'mons')
+        porta = this.physics.add.image(1750,300,'porta')
         //Estrelles a recollir
 
         stars = this.physics.add.group({
@@ -124,9 +135,6 @@ export default class ScenaB extends Phaser.Scene
 
         //poso el cor de les vides
 
-/*        vida1=this.add.image(1300, 35, 'cor');
-        vida2=this.add.image(1345, 35, 'cor');
-        vida3=this.add.image(1390, 35, 'cor');*/
         switch (countLife) {
             case 0:
                 vida1=this.add.image(35, 80, 'cor');
@@ -150,10 +158,12 @@ export default class ScenaB extends Phaser.Scene
         this.physics.add.collider(player, platforms);
         this.physics.add.collider(stars, platforms);
         this.physics.add.collider(monstruo, platforms);
+        this.physics.add.collider(porta, platforms);
 
-        this.physics.add.collider(player, aigua, caureAigua);
+        this.physics.add.collider(player, aigua, caureAigua,null, this);
         this.physics.add.overlap(player, stars, collectStar, null, this);
         this.physics.add.collider(player, monstruo, tocarMonstre, null, this);
+        this.physics.add.collider(player, porta, passaNivell, null, this);
 
 
 
@@ -206,60 +216,70 @@ function collectStar (player, star)
 
 }
 
-function caureAigua (player, aigua)
+function caureAigua (player)
 {
-    //this.physics.pause();
+    this.physics.pause();
     musica.stop();
+    mort.play()
     countLife++;
-    switch (countLife) {
-        case 1:
-            vida1.visible = false;
-            break;
-        case 2:
-            vida2.visible = false;
-            break;
-        case 3:
-            vida3.visible = false;
-            gameOver = true;
-      //      this.scene.start('GameOver');
-            break;
-    }
+    player.setTint(0xff0000)
+    player.anims.play('turn')
 
-    player.setTint(0xff0000);
 
-    player.anims.play('turn');
+    setTimeout(() => {
+        switch (countLife) {
+            case 1:
+                vida1.visible = false;
+                this.scene.start('ScenaB',{score:score});
+                break;
+            case 2:
+                vida2.visible = false;
+                this.scene.start('ScenaB',{score:score});
+                break;
+            case 3:
+                vida3.visible = false;
+                countLife=0
+                this.scene.start('GameOver',{score:score,countLife:countLife});
+                break;
+            default:
+                this.scene.start('GameOver',{score:score,countLife:countLife});
+        }
+    }, 1000)
 
-    //this.scene.start('ScenaB');
+
 }
 
-function tocarMonstre (player, aigua)
+function tocarMonstre (player)
 {
+    this.physics.pause();
     musica.stop();
+    mort.play()
     countLife++;
-    switch (countLife) {
-        case 1:
-            vida1.visible = false;
-            this.scene.start('ScenaB');
-            break;
-        case 2:
-            vida2.visible = false;
-            this.scene.start('ScenaB');
-            break;
-        case 3:
-            this.physics.pause();
-            vida3.visible = false;
-            //gameOver = true;
-            player.setTint(0xff0000);
-            player.anims.play('turn');
-            countLife=0;
-            score=0;
-            //parar uns segons
-            this.scene.start('GameOver');
-            break;
-    }
+    player.setTint(0xff0000);
+    player.anims.play('turn');
+    setTimeout(() => {
+        switch (countLife) {
+            case 1:
+                vida1.visible = false;
+                this.scene.start('ScenaB',{score:score});
+                break;
+            case 2:
+                vida2.visible = false;
+                this.scene.start('ScenaB',{score:score});
+                break;
+            case 3:
+                vida3.visible = false;
+                countLife=0;
+                this.scene.start('GameOver',{score:score});
+                break;
+            default:
+                this.scene.start('GameOver',{score:score});
+        }
+    }, 1000)
 
-
-
+}
+function passaNivell(){
+    this.scene.start('ScenaA',{score:score,countLife:countLife})
 }
 
 

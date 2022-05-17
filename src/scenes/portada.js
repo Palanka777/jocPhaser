@@ -22,7 +22,7 @@ export default class Portada extends Phaser.Scene
     {
         this.playButton.create();
 
-        const logo = this.add.image(800, 50, 'logo');
+        const logo = this.add.image(850, 50, 'logo');
 
         this.tweens.add({
             targets: logo,

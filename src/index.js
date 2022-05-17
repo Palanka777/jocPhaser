@@ -1,5 +1,5 @@
 import Portada from './scenes/portada';
-import MyGame from './scenes/scenaA';
+import ScenaA from './scenes/scenaA';
 import ScenaB from './scenes/scenaB';
 import GameOver from "./scenes/gameOver";
 import Phaser from "phaser";
@@ -10,7 +10,7 @@ const config = {
     width: 1790,
     height: 497,
     backgroundColor:'#5e3f6b',
-    scene: [Portada,ScenaB, MyGame,GameOver],
+    scene: [Portada,ScenaB, ScenaA,GameOver],
     physics: {
         default: 'arcade',
         arcade: {
