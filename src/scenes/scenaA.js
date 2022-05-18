@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import {config} from "../index";
 
-
+//podria no declarar les variables i fer-ho amb this, pero aixi el spaguetti es mes llarg, jeeje
 let player;
 let stars;
 let platforms;
@@ -16,7 +16,7 @@ let vida2;
 let vida3;
 let mort;
 let recullir;
-let musica;
+let musica1;
 let monstruo;
 let porta;
 let countLife;
@@ -46,7 +46,7 @@ export default class ScenaA extends Phaser.Scene
 
         //cargo sons
         this.load.audio('recull','./src/sons/coin.wav');
-        this.load.audio('musica','./src/sons/scenaB.wav');
+        this.load.audio('musica1','./src/sons/scenaA.mp3');
         this.load.audio('mort','./src/sons/mort.mp3');
     }
 
@@ -56,10 +56,10 @@ export default class ScenaA extends Phaser.Scene
         score=data.score
 
         recullir=this.sound.add('recull')
-        musica=this.sound.add('musica')
+        musica1=this.sound.add('musica1')
         mort=this.sound.add('mort')
-        musica.loop=true;
-        musica.play();
+        musica1.loop=true;
+        musica1.play();
 
         // Carrego mapa
 
@@ -80,10 +80,9 @@ export default class ScenaA extends Phaser.Scene
         player.setBounce(0.2);
         player.setCollideWorldBounds(true);
 
-        //this.cameras.main.startFollow(player)
-        //this.cameras.main.setZoom(2)
         monstruo = this.physics.add.image(800,300,'mons')
         porta = this.physics.add.image(1750,300,'porta')
+
         //Estrelles a recollir
 
         stars = this.physics.add.group({
@@ -129,9 +128,6 @@ export default class ScenaA extends Phaser.Scene
 
         //poso el cor de les vides
 
-        /*        vida1=this.add.image(1300, 35, 'cor');
-                vida2=this.add.image(1345, 35, 'cor');
-                vida3=this.add.image(1390, 35, 'cor');*/
         switch (countLife) {
             case 0:
                 vida1=this.add.image(35, 80, 'cor');
@@ -149,7 +145,6 @@ export default class ScenaA extends Phaser.Scene
 
         }
 
-        //aigua = this.physics.add.group();
 
         // especifico els elements que colisionen entre ells
         this.physics.add.collider(player, platforms);
@@ -217,7 +212,7 @@ function collectStar (player, star)
 function caureAigua (player)
 {
     this.physics.pause();
-    musica.stop();
+    musica1.stop();
     mort.play()
     countLife++;
     player.setTint(0xff0000)
@@ -235,7 +230,6 @@ function caureAigua (player)
                 this.scene.start('ScenaA',{score:score});
                 break;
             case 3:
-                //vida3.visible = false;
                 countLife=0
                 this.scene.start('GameOver',{score:score});
                 break;
@@ -248,7 +242,7 @@ function caureAigua (player)
 function tocarMonstre (player)
 {
     this.physics.pause();
-    musica.stop();
+    musica1.stop();
     mort.play()
     countLife++;
     player.setTint(0xff0000);
@@ -273,7 +267,7 @@ function tocarMonstre (player)
 
 }
 function passaNivell(){
-    console.log(score)
+    musica1.stop()
     this.scene.start('GameOver',{score:score})
 }
 

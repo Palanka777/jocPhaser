@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import {config} from "../index";
 
+//podria no declarar les variables i fer-ho amb this, pero aixi el spaguetti es mes llarg, jeeje
 let player;
 let stars;
 let platforms;
@@ -279,6 +280,7 @@ function tocarMonstre (player)
 
 }
 function passaNivell(){
+    musica.stop()
     this.scene.start('ScenaA',{score:score,countLife:countLife})
 }
 
