@@ -22,6 +22,7 @@ let mort;
 let countLife;
 let score;
 
+
 export default class ScenaB extends Phaser.Scene
 {
     constructor ()
